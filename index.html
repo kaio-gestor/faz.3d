@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5KDBQX5L');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaio 3D | Impressão 3D de Alta Precisão</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #0d0d12;
+            --text-light: #f4f4f9;
+            --accent-cyan: #00e5ff;
+            --accent-hover: #00b3cc;
+            --card-bg: #1a1a24;
+            --wpp-green: #25D366;
+            --gradient-glow: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.05) 0%, transparent 70%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            background-image: var(--gradient-glow);
+            color: var(--text-light); 
+            overflow-x: hidden; 
+        }
+
+        /* Ajuste do Logo Superior */
+        .brand-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+        .brand-logo img {
+            height: 80px;
+            width: auto;
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+        .brand-logo img:hover {
+            transform: scale(1.05);
+        }
+
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* Hero Section */
+        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .hero h1 { font-size: 4.5rem; font-weight: 900; margin-bottom: 20px; line-height: 1.1; text-transform: uppercase; letter-spacing: -1px; }
+        .hero h1 span { color: var(--accent-cyan); text-shadow: 0 0 30px rgba(0, 229, 255, 0.5); }
+        .hero p { font-size: 1.3rem; margin-bottom: 40px; color: #a0a0b0; max-width: 650px; margin-inline: auto; line-height: 1.6; }
+        
+        .btn-cta { background: var(--accent-cyan); color: #000; padding: 18px 45px; font-size: 1.1rem; font-weight: 800; text-decoration: none; border-radius: 50px; text-transform: uppercase; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+        .btn-cta:hover { background: var(--text-light); box-shadow: 0 0 40px rgba(0, 229, 255, 0.7); transform: scale(1.05); cursor: pointer; }
+
+        /* Contato & Form */
+        .contact { padding: 100px 0; }
+        .form-container { background: var(--card-bg); padding: 60px; border-radius: 30px; width: 100%; max-width: 700px; margin: 0 auto; border: 1px solid rgba(0,229,255,0.1); box-shadow: 0 30px 60px rgba(0,0,0,0.5); position: relative; }
+        .form-container h2 { text-align: center; font-size: 2.8rem; margin-bottom: 40px; color: var(--text-light); }
+        .form-container h2 span { color: var(--accent-cyan); }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--accent-cyan); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 16px; background: rgba(0,0,0,0.4); border: 2px solid #2a2a35; border-radius: 12px; color: var(--text-light); font-size: 1rem; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-cyan); background: rgba(0,229,255,0.02); outline: none; }
+        
+        .btn-submit { width: 100%; background: var(--accent-cyan); border: none; color: #000; padding: 20px; font-size: 1.2rem; font-weight: 900; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; margin-top: 10px; }
+        .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0, 229, 255, 0.4); filter: brightness(1.1); }
+
+        #success-ui { display: none; text-align: center; padding: 40px 0; animation: fadeIn 0.5s ease; }
+        #success-ui i { font-size: 5rem; color: var(--accent-cyan); margin-bottom: 20px; }
+
+        /* WhatsApp */
+        .wpp-float { position: fixed; bottom: 35px; right: 35px; background-color: var(--wpp-green); color: white; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: 0px 8px 20px rgba(0,0,0,0.4); z-index: 1000; text-decoration: none; animation: pulse-wpp 2s infinite; }
+
+        @keyframes pulse-wpp {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.8rem; }
+            .form-container { padding: 40px 25px; }
+            .brand-logo img { height: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5KDBQX5L"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <div class="brand-logo">
+        <img src="logo (1).png" alt="FAZ3D Impressão">
+    </div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <a href="https://wa.me/5511942285341?text=Olá%20gostaria%20de%20saber%20mais%20sobre%20os%20serviçoes%20de%20impressão%203D!" target="_blank" class="wpp-float">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <section class="hero reveal">
+        <div class="container">
+            <h1>Sua Ideia,<br><span>Nossa Impressão</span></h1>
+            <p>Criamos projetos personalizados e lembranças exclusivas com a tecnologia da impressão 3D. Transformamos sua imaginação em objetos reais com acabamento de alta qualidade.</p>
+            <a href="#orcamento" class="btn-cta">Solicitar Orçamento Técnico</a>
+        </div>
+    </section>
+
+    <section id="orcamento" class="contact reveal">
+        <div class="form-container">
+            <div id="form-content">
+                <h2>Inicie seu <span>Projeto</span></h2>
+                <form id="lp-form" name="orcamento-lp" method="POST" data-netlify="true">
+                    <input type="hidden" name="form-name" value="orcamento-lp" />
+                    
+                    <div class="form-group">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" name="nome" placeholder="Ex: João Silva" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsapp">WhatsApp</label>
+                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">E-mail Profissional</label>
+                        <input type="email" id="email" name="email" placeholder="nome@empresa.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projeto">Detalhes do Projeto</label>
+                        <textarea id="projeto" name="projeto" placeholder="Descreva sua ideia, lembrança ou projeto personalizado aqui" required></textarea>
+                    </div>
+                    <button type="submit" id="btn-enviar" class="btn-submit">Enviar para Análise <i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+            <div id="success-ui">
+                <i class="fas fa-check-double"></i>
+                <h3>Recebemos sua Ideia!</h3>
+                <p>Nossa equipe técnica analisará as especificações e entrará em contato em breve.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Scroll Reveal
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 100) { reveals[i].classList.add("active"); }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+
+        // Smooth Scroll
+        document.querySelector('.btn-cta').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#orcamento').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Form Submission Otimizado para Netlify + GTM
+        document.getElementById('lp-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const myForm = e.target;
+            const formData = new FormData(myForm);
+            
+            fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString(),
+            })
+            .then(() => {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    'event': 'form_submission',
+                    'form_id': 'lp-form',
+                    'user_email': document.getElementById('email').value,
+                    'user_name': document.getElementById('nome').value
+                });
+
+                document.getElementById('form-content').style.display = 'none';
+                document.getElementById('success-ui').style.display = 'block';
+            })
+            .catch((error) => console.error('Erro ao enviar formulário:', error));
+        });
+
+        // Partículas Otimizadas
+        const canvas = document.getElementById("particle-canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particlesArray = [];
+
+        class Particle {
+            constructor(x, y, dx, dy, size, color) {
+                this.x = x; this.y = y; this.dx = dx; this.dy = dy; this.size = size; this.color = color;
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.dx = -this.dx;
+                if (this.y > canvas.height || this.y < 0) this.dy = -this.dy;
+                this.x += this.dx; this.y += this.dy;
+                this.draw();
+            }
+        }
+
+        function init() {
+            particlesArray = [];
+            let density = window.innerWidth < 768 ? 15000 : 9000;
+            let numberOfParticles = (canvas.height * canvas.width) / density;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = Math.random() * 2 + 1;
+                let x = Math.random() * innerWidth;
+                let y = Math.random() * innerHeight;
+                let dx = (Math.random() - 0.5) * 0.8;
+                let dy = (Math.random() - 0.5) * 0.8;
+                particlesArray.push(new Particle(x, y, dx, dy, size, '#00e5ff'));
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            particlesArray.forEach(p => p.update());
+            connect();
+        }
+
+        function connect() {
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x)**2) + ((particlesArray[a].y - particlesArray[b].y)**2);
+                    if (distance < (canvas.width/7) * (canvas.height/7)) {
+                        let opacity = 1 - (distance / 20000);
+                        ctx.strokeStyle = `rgba(0, 229, 255, ${opacity * 0.15})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath(); ctx.moveTo(particlesArray[a].x, particlesArray[a].y); ctx.lineTo(particlesArray[b].x, particlesArray[b].y); ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('resize', () => { canvas.width = innerWidth; canvas.height = innerHeight; init(); });
+        init();
+        animate();
+    </script>
+</body>
+</html>
